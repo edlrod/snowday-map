@@ -9,6 +9,7 @@ const simplify = (str: string) => str.replace(/\s|\/|-/g, "").toLowerCase();
 const parseStatus = (statusText: string): DistrictStatus => {
 	const simplified = simplify(statusText);
 	if (simplified.includes("closed")) return "closed";
+	if (statusText.trim() === "All Day, Evening Classes and Activities Canceled") return "closed";
 	if (simplified.includes("remote")) return "remote";
 	if (simplified.includes("delay")) return "delay";
 	return "open";
@@ -79,10 +80,11 @@ export const useClosings = () => {
 					const name = cells[0].textContent || "";
 					const statusText = cells[2].textContent || "";
 
+					const simplifiedName = simplify(name);
 					if (
 						/ufsd|schooldistrict|publicschool|centralsd|csd/i.test(
-							simplify(name),
-						)
+							simplifiedName,
+						) || simplifiedName === 'eastquogueschool'
 					) {
 						const status = parseStatus(statusText);
 						newClosings.set(simplify(name), status);
