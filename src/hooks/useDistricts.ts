@@ -7,7 +7,7 @@ export const useDistricts = () => {
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
-		fetch("/districts.json")
+		fetch("districts.json")
 			.then((res) => res.json())
 			.then((data: District[]) => {
 				setDistricts(data);

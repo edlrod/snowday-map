@@ -1,73 +1,88 @@
-# React + TypeScript + Vite
+# Snowday Map
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A real-time interactive map showing school closure and delay status for all 112 Long Island, NY school districts. Data is sourced from News 12 Long Island's school closings database.
 
-Currently, two official plugins are available:
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript)
+![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-4-06B6D4?logo=tailwindcss)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## React Compiler
+- **Real-Time Updates** — Automatically fetches school closure data every 60 seconds
+- **Interactive Map** — Pan and zoom to explore all Long Island school districts
+- **Color-Coded Status** — Instantly see which schools are closed, delayed, remote, or open
+- **Date Selection** — View status for today, tomorrow, or other available dates
+- **Hover Tooltips** — Get detailed status information for each district
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Status Legend
 
-## Expanding the ESLint configuration
+| Color | Status |
+|-------|--------|
+| Red | Closed |
+| Dark Red | Remote Learning |
+| Yellow | Delayed |
+| White | Open / Unknown |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Getting Started
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Installation
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+git clone https://github.com/yourusername/snowday-map.git
+cd snowday-map
+bun install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Development
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+bun run dev
+```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+### Build
+
+```bash
+bun run build
+```
+
+### Deploy to GitHub Pages
+
+```bash
+bun run publish
+```
+
+## Tech Stack
+
+- **React 19** — UI framework
+- **TypeScript** — Type-safe development
+- **Vite** — Build tool with HMR
+- **Tailwind CSS** — Utility-first styling
+- **Biome** — Code formatting and linting
+
+## How It Works
+
+1. The app fetches live school closure data from News 12 Long Island
+2. District boundaries are rendered as SVG polygons on an interactive map
+3. Each district is color-coded based on its current operational status
+4. Data refreshes automatically every 60 seconds
+
+## Project Structure
+
+```
+src/
+├── components/
+│   ├── DistrictMap.tsx   # Interactive SVG map
+│   ├── InfoPanel.tsx     # Date selector & update info
+│   ├── Legend.tsx        # Status color legend
+│   ├── Tooltip.tsx       # Hover tooltips
+│   └── Card.tsx          # Reusable card component
+├── hooks/
+│   ├── useClosings.ts    # Fetches News 12 data
+│   ├── useDistricts.ts   # Loads district boundaries
+│   └── usePanning.ts     # Map pan/zoom logic
+├── App.tsx               # Root component
+└── types.ts              # TypeScript interfaces
 ```
