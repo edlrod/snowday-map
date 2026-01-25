@@ -14,7 +14,10 @@ export const App = () => {
 
 	return (
 		<>
-			<DistrictMap getDistrictStatus={getDistrictStatus} lastUpdated={lastUpdated} />
+			<DistrictMap
+				getDistrictStatus={getDistrictStatus}
+				lastUpdated={lastUpdated}
+			/>
 			<div className="fixed bottom-4 right-4 z-1050 flex flex-col gap-4">
 				<InfoPanel
 					dateOptions={dateOptions}

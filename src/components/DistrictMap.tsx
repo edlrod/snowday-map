@@ -39,7 +39,10 @@ interface DistrictMapProps {
 	lastUpdated: Date | null;
 }
 
-export const DistrictMap = ({ getDistrictStatus, lastUpdated }: DistrictMapProps) => {
+export const DistrictMap = ({
+	getDistrictStatus,
+	lastUpdated,
+}: DistrictMapProps) => {
 	const { districts, loading: districtsLoading } = useDistricts();
 
 	if (districtsLoading || !districts) {
