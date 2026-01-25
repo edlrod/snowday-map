@@ -14,7 +14,7 @@ export const Legend = () => (
 			{legendItems.map((item) => (
 				<div key={item.label} className="flex items-center gap-2">
 					<div
-						className="w-5 h-5 border border-black"
+						className="w-5 h-5 border border-black dark:border-white"
 						style={{ backgroundColor: item.color }}
 					/>
 					<span className="text-sm">{item.label}</span>

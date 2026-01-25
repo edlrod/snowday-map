@@ -24,14 +24,14 @@ export const InfoPanel = ({
 				Live snow day updates for Long Island, NY
 			</span>
 			{lastUpdated && (
-				<span className="text-sm text-gray-500">
+				<span className="text-sm text-zinc-500 dark:text-zinc-400">
 					Updated {lastUpdated.toLocaleTimeString()}
 				</span>
 			)}
 			<select
 				value={selectedDate}
 				onChange={(e) => onDateChange(e.target.value)}
-				className="border border-gray-300 px-2 py-1 mt-4"
+				className="border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-black dark:text-white px-2 py-1 mt-4"
 			>
 				{dateOptions.map((option) => (
 					<option key={option.value} value={option.value}>

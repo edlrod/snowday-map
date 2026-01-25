@@ -32,7 +32,7 @@ export const App = () => {
 					href="https://edlrod.com"
 					target="_blank"
 					rel="noopener noreferrer"
-					className="text-blue-600 hover:underline"
+					className="text-blue-600 dark:text-blue-400 hover:underline"
 				>
 					edlrod.com
 				</a>
@@ -40,7 +40,7 @@ export const App = () => {
 					href="https://github.com/edlrod/snowday-map"
 					target="_blank"
 					rel="noopener noreferrer"
-					className="text-blue-600 hover:underline"
+					className="text-blue-600 dark:text-blue-400 hover:underline"
 				>
 					GitHub
 				</a>

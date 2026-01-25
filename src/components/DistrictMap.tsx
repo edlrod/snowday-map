@@ -9,6 +9,7 @@ import {
 	TileLayer,
 	useMap,
 } from "react-leaflet";
+import { useDarkMode } from "../hooks/useDarkMode";
 import { useDistricts } from "../hooks/useDistricts";
 import type {
 	DistrictProperties,
@@ -31,13 +32,13 @@ const FitBounds = ({ districts }: { districts: DistrictsGeoJSON }) => {
 	return null;
 };
 
-const getStatusColor = (status: DistrictStatus): string =>
+const getStatusColor = (status: DistrictStatus, isDark: boolean): string =>
 	({
 		closed: "#ef4444",
 		remote: "#7f1d1d",
 		delay: "#eab308",
-		open: "#ffffff",
-	})[status] || "#ffffff";
+		open: isDark ? "#27272a" : "#ffffff",
+	})[status] || (isDark ? "#27272a" : "#ffffff");
 
 const getStatusLabel = (status: DistrictStatus): string => {
 	switch (status) {
@@ -62,6 +63,15 @@ export const DistrictMap = ({
 	lastUpdated,
 }: DistrictMapProps) => {
 	const { districts, loading: districtsLoading } = useDistricts();
+	const isDark = useDarkMode();
+
+	const baseUrl = isDark
+		? "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
+		: "https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png";
+
+	const labelsUrl = isDark
+		? "https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png"
+		: "https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png";
 
 	if (districtsLoading || !districts) {
 		return (
@@ -75,17 +85,17 @@ export const DistrictMap = ({
 		const props = feature?.properties as DistrictProperties | undefined;
 		if (!props?.POPULAR_NA) {
 			return {
-				fillColor: "#ffffff",
+				fillColor: isDark ? "#27272a" : "#ffffff",
 				weight: 1,
-				color: "#000",
+				color: isDark ? "#52525b" : "#000",
 				fillOpacity: 0.7,
 			};
 		}
 		const status = getDistrictStatus(props.POPULAR_NA);
 		return {
-			fillColor: getStatusColor(status),
+			fillColor: getStatusColor(status, isDark),
 			weight: 1,
-			color: "#000",
+			color: isDark ? "#52525b" : "#000",
 			fillOpacity: 0.7,
 		};
 	};
@@ -116,19 +126,17 @@ export const DistrictMap = ({
 			<FitBounds districts={districts} />
 			<AttributionControl position="topright" prefix={false} />
 			<TileLayer
+				key={`base-${isDark}`}
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-				url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
+				url={baseUrl}
 			/>
 			<GeoJSON
-				key={lastUpdated?.getTime() ?? 0}
+				key={`${lastUpdated?.getTime() ?? 0}-${isDark}`}
 				data={districts}
 				style={styleFeature}
 				onEachFeature={onEachFeature}
 			/>
-			<TileLayer
-				url="https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png"
-				pane="shadowPane"
-			/>
+			<TileLayer key={`labels-${isDark}`} url={labelsUrl} pane="shadowPane" />
 		</MapContainer>
 	);
 };
