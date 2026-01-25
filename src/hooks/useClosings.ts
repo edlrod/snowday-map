@@ -6,6 +6,25 @@ const NEWS12_SRC =
 
 const simplify = (str: string) => str.replace(/\s|\/|-/g, "").toLowerCase();
 
+// Normalize names by removing common suffixes and punctuation
+const normalize = (name: string): string => {
+	return name
+		.toLowerCase()
+		.replace(
+			/\b(union free school district|central school district|school district|public schools|ufsd|csd|comn sd|city sd|sd)\b/gi,
+			"",
+		)
+		.replace(/[^a-z0-9]/g, "");
+};
+
+// Manual overrides for tricky mappings (News12 normalized -> GeoJSON normalized)
+const MANUAL_OVERRIDES: Record<string, string> = {
+	comsewogue: "brookhavencomsewogue",
+	plainedge: "plainedge",
+	springs: "springs",
+	mountsinai: "mtsinai",
+};
+
 const parseStatus = (statusText: string): DistrictStatus => {
 	const simplified = simplify(statusText);
 	if (simplified.includes("closed")) return "closed";
@@ -89,7 +108,7 @@ export const useClosings = () => {
 						simplifiedName === "eastquogueschool"
 					) {
 						const status = parseStatus(statusText);
-						newClosings.set(simplify(name), status);
+						newClosings.set(name, status);
 					}
 				}
 
@@ -126,13 +145,42 @@ export const useClosings = () => {
 
 	const getDistrictStatus = useCallback(
 		(districtName: string): DistrictStatus => {
-			const simplified = simplify(districtName);
-			for (const [key, status] of closings) {
-				if (key.startsWith(simplified)) {
-					return status;
+			const normalizedDistrict = normalize(districtName);
+
+			let bestMatch: { status: DistrictStatus; score: number } | null = null;
+
+			for (const [news12Name, status] of closings) {
+				const normalizedNews12 = normalize(news12Name);
+
+				// Check manual overrides first
+				for (const [overrideKey, overrideValue] of Object.entries(
+					MANUAL_OVERRIDES,
+				)) {
+					if (
+						normalizedNews12.includes(overrideKey) &&
+						normalizedDistrict.includes(overrideValue)
+					) {
+						return status;
+					}
+				}
+
+				// Bidirectional matching - either name contains the other
+				if (
+					normalizedDistrict.includes(normalizedNews12) ||
+					normalizedNews12.includes(normalizedDistrict)
+				) {
+					// Score by how close the lengths are (prefer closer matches)
+					const score =
+						Math.min(normalizedDistrict.length, normalizedNews12.length) /
+						Math.max(normalizedDistrict.length, normalizedNews12.length);
+
+					if (bestMatch === null || score > bestMatch.score) {
+						bestMatch = { status, score };
+					}
 				}
 			}
-			return "open";
+
+			return bestMatch?.status ?? "open";
 		},
 		[closings],
 	);

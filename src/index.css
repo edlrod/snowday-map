@@ -7,3 +7,15 @@ body {
 	margin: 0;
 	padding: 0;
 }
+
+.leaflet-interactive {
+	transition:
+		stroke-width 0.15s ease,
+		fill-opacity 0.15s ease;
+	outline: none;
+}
+
+.leaflet-interactive:hover {
+	stroke-width: 3;
+	fill-opacity: 0.9;
+}

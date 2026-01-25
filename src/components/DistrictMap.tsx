@@ -1,12 +1,17 @@
-/** biome-ignore-all lint/a11y/noStaticElementInteractions: needs to be interactable */
-import { useCallback, useState } from "react";
+import type { Feature } from "geojson";
+import type { Layer } from "leaflet";
+import {
+	AttributionControl,
+	GeoJSON,
+	MapContainer,
+	TileLayer,
+} from "react-leaflet";
 import { useDistricts } from "../hooks/useDistricts";
-import { usePanning } from "../hooks/usePanning";
-import type { DistrictStatus } from "../types";
-import { Tooltip } from "./Tooltip";
+import type { DistrictProperties, DistrictStatus } from "../types";
+import "leaflet/dist/leaflet.css";
 
-const SVG_WIDTH = 1450;
-const SVG_HEIGHT = 800;
+const LONG_ISLAND_CENTER: [number, number] = [40.8, -73.2];
+const DEFAULT_ZOOM = 10;
 
 const getStatusColor = (status: DistrictStatus): string =>
 	({
@@ -16,66 +21,28 @@ const getStatusColor = (status: DistrictStatus): string =>
 		open: "#ffffff",
 	})[status] || "#ffffff";
 
+const getStatusLabel = (status: DistrictStatus): string => {
+	switch (status) {
+		case "closed":
+			return "Closed";
+		case "remote":
+			return "Remote Learning";
+		case "delay":
+			return "Delay";
+		default:
+			return "Unknown / Open";
+	}
+};
+
 interface DistrictMapProps {
 	getDistrictStatus: (name: string) => DistrictStatus;
+	lastUpdated: Date | null;
 }
 
-export const DistrictMap = ({ getDistrictStatus }: DistrictMapProps) => {
+export const DistrictMap = ({ getDistrictStatus, lastUpdated }: DistrictMapProps) => {
 	const { districts, loading: districtsLoading } = useDistricts();
-	const {
-		position,
-		scale,
-		containerRef,
-		handlers: panHandlers,
-	} = usePanning(SVG_WIDTH, SVG_HEIGHT);
 
-	const [tooltipData, setTooltipData] = useState<{
-		visible: boolean;
-		x: number;
-		y: number;
-		name: string;
-		status: DistrictStatus;
-	}>({
-		visible: false,
-		x: 0,
-		y: 0,
-		name: "",
-		status: "open",
-	});
-
-	const handleMouseMove = useCallback(
-		(e: React.MouseEvent) => {
-			panHandlers.onMouseMove(e);
-			setTooltipData((prev) => ({
-				...prev,
-				x: e.clientX,
-				y: e.clientY,
-			}));
-		},
-		[panHandlers],
-	);
-
-	const handleDistrictEnter = useCallback(
-		(name: string) => {
-			const status = getDistrictStatus(name);
-			setTooltipData((prev) => ({
-				...prev,
-				visible: true,
-				name,
-				status,
-			}));
-		},
-		[getDistrictStatus],
-	);
-
-	const handleDistrictLeave = useCallback(() => {
-		setTooltipData((prev) => ({
-			...prev,
-			visible: false,
-		}));
-	}, []);
-
-	if (districtsLoading) {
+	if (districtsLoading || !districts) {
 		return (
 			<div className="flex items-center justify-center h-screen">
 				Loading districts...
@@ -83,50 +50,63 @@ export const DistrictMap = ({ getDistrictStatus }: DistrictMapProps) => {
 		);
 	}
 
-	return (
-		<div
-			ref={containerRef}
-			className="overflow-hidden h-screen w-screen"
-			onMouseDown={panHandlers.onMouseDown}
-			onMouseMove={handleMouseMove}
-			onMouseUp={panHandlers.onMouseUp}
-			onMouseLeave={panHandlers.onMouseLeave}
-		>
-			<svg
-				width={SVG_WIDTH}
-				height={SVG_HEIGHT}
-				className="absolute cursor-grab active:cursor-grabbing origin-top-left"
-				style={{
-					left: position.x,
-					top: position.y,
-					transform: `scale(${scale})`,
-				}}
-			>
-				<title>Long Island School Districts Map</title>
-				{districts.map((district) => {
-					const status = getDistrictStatus(district.name);
-					return (
-						<polygon
-							key={district.name}
-							points={district.points.join(" ")}
-							fill={getStatusColor(status)}
-							stroke="black"
-							strokeWidth={3}
-							onMouseEnter={() => handleDistrictEnter(district.name)}
-							onMouseLeave={handleDistrictLeave}
-							className="transition-colors duration-200"
-						/>
-					);
-				})}
-			</svg>
+	const styleFeature = (feature: Feature | undefined) => {
+		const props = feature?.properties as DistrictProperties | undefined;
+		if (!props?.POPULAR_NA) {
+			return {
+				fillColor: "#ffffff",
+				weight: 1,
+				color: "#000",
+				fillOpacity: 0.7,
+			};
+		}
+		const status = getDistrictStatus(props.POPULAR_NA);
+		return {
+			fillColor: getStatusColor(status),
+			weight: 1,
+			color: "#000",
+			fillOpacity: 0.7,
+		};
+	};
 
-			<Tooltip
-				visible={tooltipData.visible}
-				x={tooltipData.x}
-				y={tooltipData.y}
-				districtName={tooltipData.name}
-				status={tooltipData.status}
+	const onEachFeature = (feature: Feature, layer: Layer) => {
+		const props = feature.properties as DistrictProperties | null;
+		if (!props?.POPULAR_NA) return;
+
+		const name = props.POPULAR_NA;
+
+		layer.bindTooltip(
+			() => {
+				const status = getDistrictStatus(name);
+				return `<strong>${name}</strong><br/>${getStatusLabel(status)}`;
+			},
+			{ sticky: true },
+		);
+	};
+
+	return (
+		<MapContainer
+			center={LONG_ISLAND_CENTER}
+			zoom={DEFAULT_ZOOM}
+			className="h-screen w-screen"
+			zoomControl={false}
+			attributionControl={false}
+		>
+			<AttributionControl position="topright" prefix={false} />
+			<TileLayer
+				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+				url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
 			/>
-		</div>
+			<GeoJSON
+				key={lastUpdated?.getTime() ?? 0}
+				data={districts}
+				style={styleFeature}
+				onEachFeature={onEachFeature}
+			/>
+			<TileLayer
+				url="https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png"
+				pane="shadowPane"
+			/>
+		</MapContainer>
 	);
 };

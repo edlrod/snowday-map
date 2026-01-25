@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
-import type { District } from "../types";
+import type { DistrictsGeoJSON } from "../types";
 
 export const useDistricts = () => {
-	const [districts, setDistricts] = useState<District[]>([]);
+	const [districts, setDistricts] = useState<DistrictsGeoJSON | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
-		fetch("districts.json")
+		fetch("districts.geojson")
 			.then((res) => res.json())
-			.then((data: District[]) => {
+			.then((data: DistrictsGeoJSON) => {
 				setDistricts(data);
 				setLoading(false);
 			})
