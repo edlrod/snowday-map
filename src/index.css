@@ -8,6 +8,10 @@ body {
 	padding: 0;
 }
 
+* {
+	box-sizing: border-box;
+}
+
 .leaflet-interactive {
 	transition:
 		stroke-width 0.15s ease,

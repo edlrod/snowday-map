@@ -1,17 +1,35 @@
 import type { Feature } from "geojson";
 import type { Layer } from "leaflet";
+import L from "leaflet";
+import { useEffect } from "react";
 import {
 	AttributionControl,
 	GeoJSON,
 	MapContainer,
 	TileLayer,
+	useMap,
 } from "react-leaflet";
 import { useDistricts } from "../hooks/useDistricts";
-import type { DistrictProperties, DistrictStatus } from "../types";
+import type {
+	DistrictProperties,
+	DistrictStatus,
+	DistrictsGeoJSON,
+} from "../types";
 import "leaflet/dist/leaflet.css";
 
-const LONG_ISLAND_CENTER: [number, number] = [40.8, -73.2];
-const DEFAULT_ZOOM = 10;
+const INITIAL_CENTER: [number, number] = [40.8, -73.2];
+const INITIAL_ZOOM = 10;
+
+const FitBounds = ({ districts }: { districts: DistrictsGeoJSON }) => {
+	const map = useMap();
+
+	useEffect(() => {
+		const bounds = L.geoJSON(districts).getBounds();
+		map.fitBounds(bounds, { padding: [8, 8] });
+	}, [map, districts]);
+
+	return null;
+};
 
 const getStatusColor = (status: DistrictStatus): string =>
 	({
@@ -89,12 +107,13 @@ export const DistrictMap = ({
 
 	return (
 		<MapContainer
-			center={LONG_ISLAND_CENTER}
-			zoom={DEFAULT_ZOOM}
+			center={INITIAL_CENTER}
+			zoom={INITIAL_ZOOM}
 			className="h-screen w-screen"
 			zoomControl={false}
 			attributionControl={false}
 		>
+			<FitBounds districts={districts} />
 			<AttributionControl position="topright" prefix={false} />
 			<TileLayer
 				attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
