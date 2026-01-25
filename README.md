@@ -20,7 +20,7 @@ Real-time interactive map showing school closure and delay status for 121 Long I
 ## Getting Started
 
 ```bash
-git clone https://github.com/nicholasblexrud/snowday-map.git
+git clone https://github.com/edlrod/snowday-map.git
 cd snowday-map
 bun install
 bun run dev
