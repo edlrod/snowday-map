@@ -51,6 +51,14 @@ export const usePanning = (svgWidth: number, svgHeight: number) => {
 		isDragging.current = false;
 	}, []);
 
+	const resetView = useCallback(() => {
+		setPosition({
+			x: window.innerWidth / 2 - svgWidth / 2,
+			y: window.innerHeight / 2 - svgHeight / 2,
+		});
+		setScale(1);
+	}, [svgWidth, svgHeight]);
+
 	useEffect(() => {
 		if (!container) return;
 
@@ -84,6 +92,7 @@ export const usePanning = (svgWidth: number, svgHeight: number) => {
 		position,
 		scale,
 		containerRef,
+		resetView,
 		handlers: {
 			onMouseDown: handleMouseDown,
 			onMouseMove: handleMouseMove,

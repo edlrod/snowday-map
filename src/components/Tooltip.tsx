@@ -35,6 +35,7 @@ export const Tooltip = ({
 	status,
 }: TooltipProps) => {
 	if (!visible) return null;
+	if (x === 0 && y === 0) return null;
 
 	return (
 		<div

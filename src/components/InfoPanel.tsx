@@ -9,39 +9,36 @@ interface InfoPanelProps {
 	dateOptions: DateOption[];
 	selectedDate: string;
 	onDateChange: (value: string) => void;
+	lastUpdated: Date | null;
 }
 
 export const InfoPanel = ({
 	dateOptions,
 	selectedDate,
 	onDateChange,
+	lastUpdated,
 }: InfoPanelProps) => {
 	return (
-		<Card>
-			<p className="text-center font-bold">
+		<Card className="flex flex-col">
+			<span className="font-bold">
 				Live snow day updates for Long Island, NY
-			</p>
-			<div className="flex items-center justify-between gap-4 mt-4">
-				<select
-					value={selectedDate}
-					onChange={(e) => onDateChange(e.target.value)}
-					className="border border-gray-300 px-2 py-1"
-				>
-					{dateOptions.map((option) => (
-						<option key={option.value} value={option.value}>
-							{option.label}
-						</option>
-					))}
-				</select>
-				<a
-					href="https://edlrod.com"
-					target="_blank"
-					rel="noopener noreferrer"
-					className="text-blue-600 hover:underline"
-				>
-					edlrod.com
-				</a>
-			</div>
+			</span>
+			{lastUpdated && (
+				<span className="text-sm text-gray-500">
+					Updated {lastUpdated.toLocaleTimeString()}
+				</span>
+			)}
+			<select
+				value={selectedDate}
+				onChange={(e) => onDateChange(e.target.value)}
+				className="border border-gray-300 px-2 py-1 mt-4"
+			>
+				{dateOptions.map((option) => (
+					<option key={option.value} value={option.value}>
+						{option.label}
+					</option>
+				))}
+			</select>
 		</Card>
 	);
 };

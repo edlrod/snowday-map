@@ -4,8 +4,13 @@ import { Legend } from "./components/Legend";
 import { useClosings } from "./hooks/useClosings";
 
 export const App = () => {
-	const { dateOptions, selectedDate, setSelectedDate, getDistrictStatus } =
-		useClosings();
+	const {
+		dateOptions,
+		selectedDate,
+		setSelectedDate,
+		getDistrictStatus,
+		lastUpdated,
+	} = useClosings();
 
 	return (
 		<>
@@ -15,8 +20,27 @@ export const App = () => {
 					dateOptions={dateOptions}
 					selectedDate={selectedDate}
 					onDateChange={setSelectedDate}
+					lastUpdated={lastUpdated}
 				/>
 				<Legend />
+			</div>
+			<div className="fixed bottom-4 left-4 z-40 flex gap-4">
+				<a
+					href="https://edlrod.com"
+					target="_blank"
+					rel="noopener noreferrer"
+					className="text-blue-600 hover:underline"
+				>
+					edlrod.com
+				</a>
+				<a
+					href="https://github.com/edlrod/snowday-map"
+					target="_blank"
+					rel="noopener noreferrer"
+					className="text-blue-600 hover:underline"
+				>
+					GitHub
+				</a>
 			</div>
 		</>
 	);
