@@ -102,7 +102,7 @@ export const useClosings = () => {
 
 					const simplifiedName = simplify(name);
 					if (
-						/ufsd|schooldistrict|publicschool|centralsd|csd/i.test(
+						/ufsd|schooldistr|publicschool|centralsd|csd/i.test(
 							simplifiedName,
 						) ||
 						simplifiedName === "eastquogueschool"
